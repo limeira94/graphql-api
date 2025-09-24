@@ -3,7 +3,7 @@ from strawberry.fastapi import GraphQLRouter
 from fastapi import FastAPI
 from typing import List
 
-from create_db import db
+from src.create_db import db
 
 
 @strawberry.type

@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = ">=3.13.7"
+requires-python = ">=3.13"
 
 [[package]]
 name = "annotated-types"
@@ -201,13 +201,13 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "faker", specifier = ">=37.8.0" },
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.117.1" },
-    { name = "httpx", marker = "extra == 'test'", specifier = ">=0.28.1" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.4.2" },
-    { name = "requests", specifier = ">=2.32.5" },
-    { name = "strawberry-graphql", extras = ["fastapi"], specifier = ">=0.282.0" },
-    { name = "uvicorn", specifier = ">=0.37.0" },
+    { name = "faker" },
+    { name = "fastapi", extras = ["standard"] },
+    { name = "httpx", marker = "extra == 'test'" },
+    { name = "pytest", marker = "extra == 'test'" },
+    { name = "requests" },
+    { name = "strawberry-graphql", extras = ["fastapi"] },
+    { name = "uvicorn" },
 ]
 provides-extras = ["test"]
 

@@ -14,3 +14,6 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["httpx", "pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
