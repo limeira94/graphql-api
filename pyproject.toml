@@ -1,0 +1,16 @@
+[project]
+name = "graphql-api"
+version = "0.1.0"
+description = "API GraphQL"
+readme = "README.md"
+requires-python = ">=3.13.7"
+dependencies = [
+    "faker>=37.8.0",
+    "fastapi[standard]>=0.117.1",
+    "requests>=2.32.5",
+    "strawberry-graphql[fastapi]>=0.282.0",
+    "uvicorn>=0.37.0",
+]
+
+[project.optional-dependencies]
+test = ["httpx>=0.28.1", "pytest>=8.4.2"]
