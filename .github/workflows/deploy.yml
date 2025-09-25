@@ -54,8 +54,8 @@ jobs:
             # Stop the old containers, build a new image, and start it
             # -d runs it in the background
             # --build forces it to rebuild the image with the new code
-            docker-compose down
-            docker-compose up -d --build
+            docker compose down
+            docker compose up -d --build
 
             # Clean up old, unused Docker images to save disk space
             docker image prune -f
