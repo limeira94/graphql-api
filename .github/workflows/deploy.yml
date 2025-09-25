@@ -1,0 +1,61 @@
+name: Test and Deploy to DigitalOcean
+
+# This workflow runs on every push to the 'main' branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # The first job is to test the code
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pipx install uv
+
+      - name: Install dependencies
+        run: uv pip install '.[test]'
+
+      - name: Run tests with pytest
+        run: uv run pytest
+
+  # The second job deploys the code, but only if the 'test' job succeeds
+  deploy:
+    needs: test # This line makes it wait for the 'test' job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to DigitalOcean Droplet
+        # This is a popular action for running commands over SSH
+        uses: appleboy/ssh-action@master
+        with:
+          # These values come from the secrets you created in your GitHub repo
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+          # This is the script that will run on your Droplet
+          script: |
+            # Navigate to the project directory on your server
+            # Make sure this matches your repository's name
+            cd ~/graphql-api
+
+            # Pull the latest changes from the main branch
+            git pull origin main
+
+            # Stop the old containers, build a new image, and start it
+            # -d runs it in the background
+            # --build forces it to rebuild the image with the new code
+            docker-compose down
+            docker-compose up -d --build
+
+            # Clean up old, unused Docker images to save disk space
+            docker image prune -f
