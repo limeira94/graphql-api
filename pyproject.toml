@@ -10,6 +10,7 @@ dependencies = [
     "requests",
     "strawberry-graphql[fastapi]",
     "uvicorn",
+    "pymongo",
 ]
 
 [project.optional-dependencies]

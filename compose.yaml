@@ -1,6 +1,32 @@
 services:
   api:
-    build: .
+    image: limeira/graphql-api:v1
     restart: always
     ports:
-    - "80:8000"
+      - "8000:8000"
+    depends_on:
+      db-seed:
+        condition: service_completed_successfully
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_DB=graphql
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+  db-seed:
+    build: limeira/graphql-api:v1
+    command: python -c "from src import create_db"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_DB=graphql
+
+volumes:
+  mongo-data:

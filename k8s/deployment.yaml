@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graphql-api-deployment
+  labels:
+    app: graphql-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: graphql-api
+  template:
+    metadata:
+      labels:
+        app: graphql-api
+    spec:
+      initContainers:
+        - name: init-db-seed
+          image: limeira/graphql-api:v1
+          command: ["python", "-c", "from src import create_db"]
+          env:
+            - name: MONGO_HOST
+              value: mongodb-service
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_DB
+              value: graphql
+      containers:
+        - name: graphql-api
+          image: limeira/graphql-api:v1
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MONGO_HOST
+              value: mongodb-service
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_DB
+              value: graphql
+          livenessProbe:
+            httpGet:
+              path: /graphql
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /graphql
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: graphql-api-service
+  labels:
+    app: graphql-api
+spec:
+  selector:
+    app: graphql-api
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer # Use NodePort for k3d if LoadBalancer isn't supported or you want direct access
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+          env:
+            - name: MONGO_INITDB_DATABASE
+              value: graphql # Sets the default database
+      volumes:
+        - name: mongo-persistent-storage
+          emptyDir: {} # For local testing, data will be lost on pod restart. Use PersistentVolumeClaim for production.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  labels:
+    app: mongodb
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+  type: ClusterIP # MongoDB typically doesn't need to be exposed externally
