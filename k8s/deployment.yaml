@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: graphql-api-deployment
-  labels:
-    app: graphql-api
 spec:
   replicas: 1
   selector:
@@ -37,25 +35,12 @@ spec:
               value: "27017"
             - name: MONGO_DB
               value: graphql
-          livenessProbe:
-            httpGet:
-              path: /graphql
-              port: 8000
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /graphql
-              port: 8000
-            initialDelaySeconds: 5
-            periodSeconds: 3
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: graphql-api-service
-  labels:
-    app: graphql-api
 spec:
   selector:
     app: graphql-api
@@ -63,14 +48,12 @@ spec:
     - protocol: TCP
       port: 8000
       targetPort: 8000
-  type: LoadBalancer # Use NodePort for k3d if LoadBalancer isn't supported or you want direct access
+  type: LoadBalancer 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongodb-deployment
-  labels:
-    app: mongodb
 spec:
   replicas: 1
   selector:
@@ -91,17 +74,15 @@ spec:
               mountPath: /data/db
           env:
             - name: MONGO_INITDB_DATABASE
-              value: graphql # Sets the default database
+              value: graphql 
       volumes:
         - name: mongo-persistent-storage
-          emptyDir: {} # For local testing, data will be lost on pod restart. Use PersistentVolumeClaim for production.
+          emptyDir: {} 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mongodb-service
-  labels:
-    app: mongodb
 spec:
   selector:
     app: mongodb
@@ -109,4 +90,4 @@ spec:
     - protocol: TCP
       port: 27017
       targetPort: 27017
-  type: ClusterIP # MongoDB typically doesn't need to be exposed externally
+  type: ClusterIP
